@@ -2,8 +2,8 @@ package shotsd;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -13,8 +13,7 @@ public final class ControlPanel extends JPanel {
   private final double SCALE_INCREMENT = 0.02;
   private final JTextField messageBox = new JTextField();
   private final JSlider scaleSlider = new JSlider(JSlider.HORIZONTAL, 1, 100, 50);
-  private final JTextField rangeInput = new JTextField();
-  private final JComboBox rangeUnits = new UnitsComboBox();
+  private final JButton newGroupButton = new JButton("New Group");
   
   public ControlPanel(UIMediator mediator) {
     this.mediator = mediator;
@@ -28,14 +27,10 @@ public final class ControlPanel extends JPanel {
     add(scaleSlider, cons);
     scaleSlider.addChangeListener(e -> mediator.setScale(getScale()));
     
-    // range input
-    rangeInput.setText("25");
-    cons.gridx = 0; ++cons.gridy; cons.gridwidth = 1;
-    add(new JLabel("Range"));
-    ++cons.gridx; cons.weightx = 1.0;
-    add(rangeInput);
-    ++cons.gridx; cons.weightx = 0;
-    add(rangeUnits);
+    cons.gridy++; cons.gridwidth = 3;
+    add(newGroupButton ,cons);
+    
+    cons.gridwidth = 1;
   }
   
   public double getScale() {
@@ -44,7 +39,12 @@ public final class ControlPanel extends JPanel {
     return scale;
   }
 
-  void setMessage(String message) {
+  public void setMessage(String message) {
     messageBox.setText(message);
+  }
+  
+  public void addNewGroupButtonHandler(ActionListener l) {
+    newGroupButton.setEnabled(true);
+    newGroupButton.addActionListener(l);
   }
 }

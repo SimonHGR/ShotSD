@@ -1,6 +1,8 @@
 package shotsd;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,6 +19,19 @@ public class UIMediator {
   private double scaleFactor = 1;
   private ControlPanel controlPanel;
   private Point rulerStart;
+
+  private ActionListener groupStarter = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      // create group sub-UI in control panel
+      //  controlPanel.addGroup(new GroupUI());
+      controlPanel.setMessage("Enter range and click on shots");
+      imagePanel.addMouseListener(shotRecorder);
+      PointCollection pointCollection = new PointCollection();
+      pointCollections.push(pointCollection);
+      GroupUI groupUI = new GroupUI(pointCollection);
+    }
+  };
 
   private MouseListener shotRecorder = new MouseAdapter() {
     @Override
@@ -49,22 +64,8 @@ public class UIMediator {
       pixelScale = Math.sqrt(deltaX + deltaY) / 12;
       System.out.println("Pixels per inch: " + pixelScale);
       imagePanel.removeMouseListener(this);
-      controlPanel.setMessage("");
-      startGroup();
-    }
-    
-    private void startGroup() {
-      // create group sub-UI in control panel
-    //  controlPanel.addGroup(new GroupUI());
-      controlPanel.setMessage("Enter range for group");
-      
-      pointCollections.push(new PointCollection());
-      // should be called from the GroupUI on initial info
-      collectGroup();
-    }
-    private void collectGroup() {
-      imagePanel.addMouseListener(shotRecorder);
-      controlPanel.setMessage("Click on shots in this group");
+      controlPanel.addNewGroupButtonHandler(groupStarter);
+      groupStarter.actionPerformed(new ActionEvent(e.getSource(), 0, null));
     }
   };
 
