@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Panel;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,14 +20,9 @@ import javax.swing.WindowConstants;
 public class ShotUI extends JPanel {
 
   private JFrame frame = new JFrame("ShotSD");
-//  private double scaleFactor = 0.3;
   private AffineTransform scaleTransform = null;
 
-  private Panel imagePanel = new Panel() {
-    {
-      setOpaque(true);
-    }
-
+  private JPanel imagePanel = new JPanel() {
     private void fillDot(Graphics2D g, Point2D p) {
       int x = (int) (p.getX() - 10);
       int y = (int) (p.getY() - 10);
@@ -39,40 +33,45 @@ public class ShotUI extends JPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
       Graphics2D g2d = (Graphics2D) g;
-      g2d.setTransform(scaleTransform);
+      g2d.transform(scaleTransform);
       g2d.drawImage(image, 0, 0, null);
       for (int i = 0; i < pointCollection.getPointCount(); i++) {
         fillDot(g2d, pointCollection.getPoint(i));
       }
-      
+
       // crosshairs for mean point
       g2d.setColor(Color.BLUE);
       Point2D meanPoint = pointCollection.getMean();
-      int mX = (int)meanPoint.getX();
-      int mY = (int)meanPoint.getY();
+      int mX = (int) meanPoint.getX();
+      int mY = (int) meanPoint.getY();
       g2d.drawLine(mX, 0, mX, 3000);
       g2d.drawLine(0, mY, 3000, mY);
-      
-      // circle for standard deviation
+
+      // circles for standard deviation
       g2d.setColor(Color.ORANGE);
-      int sd = (int)pointCollection.getSD();
-      
+      int sd = (int) pointCollection.getSD();
       g2d.drawOval(mX - sd / 2, mY - sd / 2, sd, sd);
-      g2d.drawOval(mX - sd, mY - sd, 2*sd, 2*sd);
+      g2d.drawOval(mX - sd, mY - sd, 2 * sd, 2 * sd);
       g2d.drawOval(mX - 3 * sd / 2, mY - 3 * sd / 2, 3 * sd, 3 * sd);
     }
 
     @Override
     public Dimension getPreferredSize() {
       double scaleFactor = controlPanel.getScale();
+      System.out.println("reporting preferred size");
       return new Dimension(
           (int) (image.getWidth() * scaleFactor),
           (int) (image.getHeight() * scaleFactor));
     }
   };
-  private JScrollPane scroller = new JScrollPane(imagePanel);
+  
+  private JScrollPane scroller = new JScrollPane();
+  {
+    scroller.setViewportView(imagePanel);
+  }
   private ControlPanel controlPanel = new ControlPanel(this);
   private BufferedImage image;
   private BufferedImage overlay;
@@ -91,6 +90,8 @@ public class ShotUI extends JPanel {
 
   public void setScale(double scaleFactor) {
     scaleTransform = AffineTransform.getScaleInstance(scaleFactor, scaleFactor);
+    scroller.revalidate();
+//    scroller.repaint();
     imagePanel.repaint();
   }
 
