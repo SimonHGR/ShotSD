@@ -9,7 +9,43 @@ import java.util.ArrayList;
 public class PointCollection {
   private List<Point2D> data = new ArrayList<>();
   private double pixelScale;
+  private String groupName;
+  private double range = 25;
+  private String rangeUnitName = "Yards";
+  private double rangeMultiplier = 12;
   private List<PropertyChangeListener> listeners = new ArrayList<>();
+
+  public PointCollection(double pixelScale) {
+    this.pixelScale = pixelScale;
+  }
+
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
+
+  public double getRangeInInches() {
+    return range * rangeMultiplier;
+  }
+
+  public String getRangeText() {
+    return String.format("%4.2f %s", range, rangeUnitName);
+  }
+
+  public void setRangeInUnits(double range) {
+    this.range = range;
+  }
+
+  public void setRangeUnitName(String rangeUnitName) {
+    this.rangeUnitName = rangeUnitName;
+  }
+
+  public void setRangeMultiplier(double rangeMultiplier) {
+    this.rangeMultiplier = rangeMultiplier;
+  }
   
   public void addPoint(Point2D p) {
     data.add(p);
@@ -58,6 +94,17 @@ public class PointCollection {
       sd = Math.sqrt(sumSquaredDiffs/pointCount);
     }
     return sd;
+  }
+  
+  public double getMoaSD() {
+    double sd = getSD();
+    double sdInches = sd / pixelScale;
+    double inches = getRangeInInches();
+    double tanTheta = sdInches/inches;
+    double angleRads = Math.atan(tanTheta);
+    double angleDegrees = 180 * angleRads / Math.PI;
+    double angleMinutes = 60 * angleDegrees;
+    return angleMinutes;
   }
   
   public void addPropertyChangeListener(PropertyChangeListener listener) {

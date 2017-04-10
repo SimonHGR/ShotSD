@@ -30,17 +30,18 @@ public class UIMediator {
   private double pixelScale = -1;
   private double scaleFactor = 1;
   private ControlPanel controlPanel;
-  private Point rulerStart;
+  private Point2D.Double rulerStart;
 
   private ActionListener groupStarter = new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
+      char groupNum = (char) pointCollections.size();
       // create group sub-UI in control panel
       controlPanel.setMessage("Enter range and click on shots");
-      imagePanel.addMouseListener(shotRecorder);
-      PointCollection pointCollection = new PointCollection();
+      System.out.println("Creating group with pixel scale " + pixelScale);
+      PointCollection pointCollection = new PointCollection(pixelScale);
       pointCollections.push(pointCollection);
-      GroupUI groupUI = new GroupUI(pointCollection, pixelScale);
+      GroupUI groupUI = new GroupUI(pointCollection, "Group " + (char) ('A' + groupNum));
       controlPanel.addNewGroup(groupUI);
     }
   };
@@ -58,8 +59,7 @@ public class UIMediator {
 
   private MouseListener scaleSetterStart = new MouseAdapter() {
     public void mouseClicked(MouseEvent e) {
-      System.out.println("Ruler start at " + e.getPoint());
-      rulerStart = e.getPoint();
+      rulerStart = toImageScaledPoint2D(e.getPoint());
       imagePanel.removeMouseListener(this);
       imagePanel.addMouseListener(scaleSetterEnd);
       controlPanel.setMessage("Click end of ruler");
@@ -68,15 +68,17 @@ public class UIMediator {
 
   private MouseListener scaleSetterEnd = new MouseAdapter() {
     public void mouseClicked(MouseEvent e) {
-      System.out.println("Ruler end at " + e.getPoint());
-      double deltaX = rulerStart.getX() - e.getX();
+      Point2D.Double rulerEnd = toImageScaledPoint2D(e.getPoint());
+      System.out.println("Ruler end at " + rulerEnd);
+      double deltaX = rulerStart.getX() - rulerEnd.getX();
       deltaX *= deltaX;
-      double deltaY = rulerStart.getY() - e.getY();
+      double deltaY = rulerStart.getY() - rulerEnd.getY();
       deltaY *= deltaY;
       pixelScale = Math.sqrt(deltaX + deltaY) / RULER_LENGTH;
-      System.out.println("Pixels per inch: " + pixelScale);
+      System.out.println("Configuring pixelScale: " + pixelScale);
       imagePanel.removeMouseListener(this);
       controlPanel.addNewGroupButtonHandler(groupStarter);
+      imagePanel.addMouseListener(shotRecorder);
       groupStarter.actionPerformed(new ActionEvent(e.getSource(), 0, null));
     }
   };
@@ -117,7 +119,7 @@ public class UIMediator {
       final int FONT_SIZE = 16;
 
       public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-        Graphics2D g2D = (Graphics2D)graphics;
+        Graphics2D g2D = (Graphics2D) graphics;
         AffineTransform transform = new AffineTransform(pageFormat.getMatrix());
         // these units are 1/72"
         double offsetX = pageFormat.getImageableX();
@@ -155,17 +157,20 @@ public class UIMediator {
         } else if (pageIndex == 1) {
           g2D.transform(transform);
           // statistics
-          int vOff = 0;
+          int vOff = FONT_SIZE;
           Font f = new Font("Sans", Font.PLAIN, FONT_SIZE);
           int groupNumber = 0;
           for (PointCollection pc : pointCollections) {
-            String message = "Shot group " + (++groupNumber);
+            String message = "Shot group " + pc.getGroupName();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
-            message = "Range ";
+            message = "Range " + pc.getRangeText();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
-            message = "Standard Deviation (MOA) " + pc.getSD();
+            message = "Standard Deviation (Pixels) " + pc.getSD();
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+            message = "Standard Deviation (MOA) " + pc.getMoaSD();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
             message = " --------------------------------";

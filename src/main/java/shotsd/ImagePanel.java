@@ -63,9 +63,9 @@ public class ImagePanel extends JPanel {
       // circles for standard deviation
       g2d.setColor(Color.ORANGE);
       int sd = (int) pointCollection.getSD();
-      g2d.drawOval(mX - sd / 2, mY - sd / 2, sd, sd);
-      g2d.drawOval(mX - sd, mY - sd, 2 * sd, 2 * sd);
-      g2d.drawOval(mX - 3 * sd / 2, mY - 3 * sd / 2, 3 * sd, 3 * sd);
+      g2d.drawOval(mX - sd, mY - sd, 2*sd, 2*sd);
+      g2d.drawOval(mX - 2*sd, mY - 2*sd, 4*sd, 4*sd);
+      g2d.drawOval(mX - 3*sd, mY - 3*sd, 6*sd, 6*sd);
     }
   }
 
