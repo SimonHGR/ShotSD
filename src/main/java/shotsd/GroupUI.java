@@ -34,6 +34,7 @@ public final class GroupUI extends JPanel {
     add(rangeInput, cons);
     ++cons.gridx; cons.weightx = 0;
     add(rangeUnits, cons);
+    rangeInput.addActionListener(e->update());
     
     // count output
     ++cons.gridy; cons.gridx = 0; cons.gridwidth = 1;

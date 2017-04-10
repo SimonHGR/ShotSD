@@ -39,8 +39,13 @@ public class ImagePanel extends JPanel {
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
-    Graphics2D g2d = (Graphics2D) g;
-    g2d.transform(scaleTransform);
+    paintComponent((Graphics2D) g, scaleTransform);
+  }
+
+  protected void paintComponent(Graphics2D g2d, AffineTransform transform) {
+    if (transform != null) {
+      g2d.transform(transform);
+    }
     g2d.drawImage(image, 0, 0, null);
     for (PointCollection pointCollection : pointCollections) {
       for (int i = 0; i < pointCollection.getPointCount(); i++) {
@@ -69,6 +74,10 @@ public class ImagePanel extends JPanel {
     return new Dimension(
         (int) (image.getWidth() * scaleFactor),
         (int) (image.getHeight() * scaleFactor));
+  }
+
+  public Dimension getRawSize() {
+    return new Dimension(image.getWidth(), image.getHeight());
   }
 
   public void setScale(double scale) {

@@ -17,6 +17,7 @@ public final class ControlPanel extends JPanel {
   private final JTextField messageBox = new JTextField();
   private final JSlider scaleSlider = new JSlider(JSlider.HORIZONTAL, 1, 100, 50);
   private final JButton newGroupButton = new JButton("New Group");
+  private final JButton printButton = new JButton("Print");
 
   private final JPanel groupPanel = new JPanel();
   private int groupCount = 0;
@@ -42,6 +43,10 @@ public final class ControlPanel extends JPanel {
     cons.gridy++;
     cons.gridwidth = 3;
     add(newGroupButton, cons);
+    
+    cons.gridy++;
+    add(printButton, cons);
+    printButton.addActionListener(e->mediator.printResults());
 
     cons.gridy++;
     cons.weighty = 1.0;

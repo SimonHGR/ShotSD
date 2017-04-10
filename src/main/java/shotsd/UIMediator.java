@@ -1,5 +1,8 @@
 package shotsd;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,9 +11,18 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
+import static java.awt.print.Printable.PAGE_EXISTS;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.util.Deque;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
 
 public class UIMediator {
+
   private final int RULER_LENGTH = 12; // should be reading!
 
   private Deque<PointCollection> pointCollections;
@@ -89,8 +101,72 @@ public class UIMediator {
   }
 
   public void setScale(double scale) {
-//    System.out.println("mediator set scale...");
     scaleFactor = scale;
     imagePanel.setScale(scale);
+  }
+
+  void printResults() {
+    final Dimension imageBounds = imagePanel.getRawSize();
+    final double iRatio = ((double) imageBounds.width) / imageBounds.height;
+    System.out.println("iRatio = " + iRatio);
+
+    PrinterJob job = PrinterJob.getPrinterJob();
+    PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+    PageFormat pf = job.pageDialog(aset);
+
+    job.setPrintable(new Printable() {
+      public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+        AffineTransform transform = new AffineTransform(pageFormat.getMatrix());
+        // these units are 1/72"
+        double offsetX = pageFormat.getImageableX();
+        double offsetY = pageFormat.getImageableY();
+        
+        transform.translate(offsetX, offsetY);
+        double usefulWidth = pageFormat.getImageableWidth();
+        double usefulHeight = pageFormat.getImageableHeight();
+        
+        double pageRatio = usefulWidth / usefulHeight;
+        System.out.printf("page tl: %6.2f , %6.2f print area: %6.2f , %6.2f\n",
+            offsetX, offsetY, usefulWidth, usefulHeight);
+        double imageRatio = iRatio;
+        double imageW = imageBounds.width;
+        double imageH = imageBounds.height;
+        if (Math.signum(1 - pageRatio) != Math.signum(1 - imageRatio)) {
+          System.out.println("Rotating image??");
+          transform.translate(usefulWidth, 0);
+          transform.rotate(Math.PI / 2);
+          imageRatio = 1.0 / imageRatio;
+          double temp = imageW;
+          imageW = imageH;
+          imageH = temp;
+        }
+
+        double scale = 1.0;
+        if (imageRatio > pageRatio) { // scale "width"
+          scale = usefulWidth / imageW;
+//          System.out.printf("scaling width: useful is %6.2f image is %6.2f scale is %6.4f\n",
+//              usefulWidth, imageW, scale);
+        } else { // scale height
+          scale = usefulHeight / imageH;
+//          System.out.printf("scaling height: useful is %6.2f image is %6.2f scale is %6.4f\n",
+//              usefulHeight, imageH, scale);
+        }
+//        System.out.println("scale is " + scale);
+        transform.scale(scale, scale);
+        if (pageIndex != 0) {
+          return NO_SUCH_PAGE;
+        }
+        imagePanel.paintComponent((Graphics2D) graphics, transform);
+        return PAGE_EXISTS;
+      }
+    }, pf);
+    boolean ok = job.printDialog(aset);
+    if (ok) {
+      try {
+        job.print();
+      } catch (PrinterException e1) {
+        e1.printStackTrace();
+      }
+    }
   }
 }
