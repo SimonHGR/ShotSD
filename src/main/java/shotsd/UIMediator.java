@@ -1,6 +1,7 @@
 package shotsd;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -13,8 +14,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
-import static java.awt.print.Printable.NO_SUCH_PAGE;
-import static java.awt.print.Printable.PAGE_EXISTS;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Deque;
@@ -115,49 +114,68 @@ public class UIMediator {
     PageFormat pf = job.pageDialog(aset);
 
     job.setPrintable(new Printable() {
+      final int FONT_SIZE = 16;
+
       public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+        Graphics2D g2D = (Graphics2D)graphics;
         AffineTransform transform = new AffineTransform(pageFormat.getMatrix());
         // these units are 1/72"
         double offsetX = pageFormat.getImageableX();
         double offsetY = pageFormat.getImageableY();
-        
         transform.translate(offsetX, offsetY);
-        double usefulWidth = pageFormat.getImageableWidth();
-        double usefulHeight = pageFormat.getImageableHeight();
-        
-        double pageRatio = usefulWidth / usefulHeight;
-        System.out.printf("page tl: %6.2f , %6.2f print area: %6.2f , %6.2f\n",
-            offsetX, offsetY, usefulWidth, usefulHeight);
-        double imageRatio = iRatio;
-        double imageW = imageBounds.width;
-        double imageH = imageBounds.height;
-        if (Math.signum(1 - pageRatio) != Math.signum(1 - imageRatio)) {
-          System.out.println("Rotating image??");
-          transform.translate(usefulWidth, 0);
-          transform.rotate(Math.PI / 2);
-          imageRatio = 1.0 / imageRatio;
-          double temp = imageW;
-          imageW = imageH;
-          imageH = temp;
-        }
+        if (pageIndex == 0) {
+          double usefulWidth = pageFormat.getImageableWidth();
+          double usefulHeight = pageFormat.getImageableHeight();
 
-        double scale = 1.0;
-        if (imageRatio > pageRatio) { // scale "width"
-          scale = usefulWidth / imageW;
-//          System.out.printf("scaling width: useful is %6.2f image is %6.2f scale is %6.4f\n",
-//              usefulWidth, imageW, scale);
-        } else { // scale height
-          scale = usefulHeight / imageH;
-//          System.out.printf("scaling height: useful is %6.2f image is %6.2f scale is %6.4f\n",
-//              usefulHeight, imageH, scale);
+          double pageRatio = usefulWidth / usefulHeight;
+          System.out.printf("page tl: %6.2f , %6.2f print area: %6.2f , %6.2f\n",
+              offsetX, offsetY, usefulWidth, usefulHeight);
+          double imageRatio = iRatio;
+          double imageW = imageBounds.width;
+          double imageH = imageBounds.height;
+          if (Math.signum(1 - pageRatio) != Math.signum(1 - imageRatio)) {
+            System.out.println("Rotating image??");
+            transform.translate(usefulWidth, 0);
+            transform.rotate(Math.PI / 2);
+            imageRatio = 1.0 / imageRatio;
+            double temp = imageW;
+            imageW = imageH;
+            imageH = temp;
+          }
+
+          double scale = 1.0;
+          if (imageRatio > pageRatio) { // scale "width"
+            scale = usefulWidth / imageW;
+          } else { // scale height
+            scale = usefulHeight / imageH;
+          }
+          transform.scale(scale, scale);
+          imagePanel.paintComponent((Graphics2D) g2D, transform);
+          return Printable.PAGE_EXISTS;
+        } else if (pageIndex == 1) {
+          g2D.transform(transform);
+          // statistics
+          int vOff = 0;
+          Font f = new Font("Sans", Font.PLAIN, FONT_SIZE);
+          int groupNumber = 0;
+          for (PointCollection pc : pointCollections) {
+            String message = "Shot group " + (++groupNumber);
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+            message = "Range ";
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+            message = "Standard Deviation (MOA) " + pc.getSD();
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+            message = " --------------------------------";
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+          }
+          return Printable.PAGE_EXISTS;
+        } else {
+          return Printable.NO_SUCH_PAGE;
         }
-//        System.out.println("scale is " + scale);
-        transform.scale(scale, scale);
-        if (pageIndex != 0) {
-          return NO_SUCH_PAGE;
-        }
-        imagePanel.paintComponent((Graphics2D) graphics, transform);
-        return PAGE_EXISTS;
       }
     }, pf);
     boolean ok = job.printDialog(aset);
