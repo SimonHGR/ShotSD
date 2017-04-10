@@ -2,14 +2,18 @@ package shotsd;
 
 import java.util.List;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 public class PointCollection {
   private List<Point2D> data = new ArrayList<>();
   private double pixelScale;
+  private List<PropertyChangeListener> listeners = new ArrayList<>();
   
   public void addPoint(Point2D p) {
     data.add(p);
+    notifyListeners();
   }
   
   public Point2D getPoint(int idx) {
@@ -59,5 +63,14 @@ public class PointCollection {
 //          + " Minutes of arc");
     }
     return sd;
+  }
+  
+  public void addPropertyChangeListener(PropertyChangeListener listener) {
+    listeners.add(listener);
+  }
+  public void notifyListeners() {
+    for (PropertyChangeListener l : listeners) {
+      l.propertyChange(new PropertyChangeEvent(this, "data", null, null));
+    }
   }
 }

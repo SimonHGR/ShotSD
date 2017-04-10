@@ -2,9 +2,11 @@ package shotsd;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
@@ -14,6 +16,10 @@ public final class ControlPanel extends JPanel {
   private final JTextField messageBox = new JTextField();
   private final JSlider scaleSlider = new JSlider(JSlider.HORIZONTAL, 1, 100, 50);
   private final JButton newGroupButton = new JButton("New Group");
+  
+  private final JPanel groupPanel = new JPanel();
+  private int groupCount = 0;
+  private final JScrollPane groupScroller = new JScrollPane(groupPanel);
   
   public ControlPanel(UIMediator mediator) {
     this.mediator = mediator;
@@ -28,9 +34,11 @@ public final class ControlPanel extends JPanel {
     scaleSlider.addChangeListener(e -> mediator.setScale(getScale()));
     
     cons.gridy++; cons.gridwidth = 3;
-    add(newGroupButton ,cons);
-    
-    cons.gridwidth = 1;
+    add(newGroupButton, cons);
+
+    cons.gridy++; cons.weighty = 1.0;
+    add(groupScroller, cons);
+    groupPanel.setLayout(new GridBagLayout());
   }
   
   public double getScale() {
@@ -46,5 +54,13 @@ public final class ControlPanel extends JPanel {
   public void addNewGroupButtonHandler(ActionListener l) {
     newGroupButton.setEnabled(true);
     newGroupButton.addActionListener(l);
+  }
+  
+  public void addNewGroup(GroupUI groupUI) {
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.gridy = groupCount++;
+    groupPanel.add(groupUI, gbc);
+    revalidate();
+    repaint();
   }
 }

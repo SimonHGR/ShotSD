@@ -11,6 +11,7 @@ import java.awt.geom.Point2D;
 import java.util.Deque;
 
 public class UIMediator {
+  private final int RULER_LENGTH = 12; // should be reading!
 
   private Deque<PointCollection> pointCollections;
   private ShotUI ui;
@@ -24,12 +25,12 @@ public class UIMediator {
     @Override
     public void actionPerformed(ActionEvent e) {
       // create group sub-UI in control panel
-      //  controlPanel.addGroup(new GroupUI());
       controlPanel.setMessage("Enter range and click on shots");
       imagePanel.addMouseListener(shotRecorder);
       PointCollection pointCollection = new PointCollection();
       pointCollections.push(pointCollection);
-      GroupUI groupUI = new GroupUI(pointCollection);
+      GroupUI groupUI = new GroupUI(pointCollection, pixelScale);
+      controlPanel.addNewGroup(groupUI);
     }
   };
 
@@ -61,7 +62,7 @@ public class UIMediator {
       deltaX *= deltaX;
       double deltaY = rulerStart.getY() - e.getY();
       deltaY *= deltaY;
-      pixelScale = Math.sqrt(deltaX + deltaY) / 12;
+      pixelScale = Math.sqrt(deltaX + deltaY) / RULER_LENGTH;
       System.out.println("Pixels per inch: " + pixelScale);
       imagePanel.removeMouseListener(this);
       controlPanel.addNewGroupButtonHandler(groupStarter);

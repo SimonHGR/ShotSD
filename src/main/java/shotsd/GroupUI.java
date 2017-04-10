@@ -11,14 +11,17 @@ import javax.swing.border.SoftBevelBorder;
 public final class GroupUI extends JPanel {
 
   private final PointCollection pointCollection;
+  private final double pixelScale;
   
-  private final JTextField rangeInput = new JTextField("25");
+  private final JTextField rangeInput = new JTextField("                 25");
   private final JComboBox<UnitItem> rangeUnits = new UnitsComboBox();
   private final JTextField count = new JTextField();
   private final JTextField standardDeviation = new JTextField();
 
-  public GroupUI(PointCollection pointCollection) {
+  public GroupUI(PointCollection pointCollection, double pixelScale) {
     this.pointCollection = pointCollection;
+    this.pixelScale = pixelScale;
+    
     setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
     setLayout(new GridBagLayout());
     GridBagConstraints cons = new GridBagConstraints();
@@ -26,22 +29,34 @@ public final class GroupUI extends JPanel {
     cons.fill = GridBagConstraints.HORIZONTAL;
 
     // range input
-    add(new JLabel("Range"));
-    ++cons.gridx;
-    add(rangeInput);
-    ++cons.gridx;
-    add(rangeUnits);
+    add(new JLabel("Range"), cons);
+    ++cons.gridx; cons.weightx = 1.0;
+    add(rangeInput, cons);
+    ++cons.gridx; cons.weightx = 0;
+    add(rangeUnits, cons);
     
     // count output
-    ++cons.gridy; cons.gridx = 0;
-    add(new JLabel("Count"));
+    ++cons.gridy; cons.gridx = 0; cons.gridwidth = GridBagConstraints.REMAINDER;
+    add(new JLabel("Count"), cons);
     ++cons.gridx;
-    add(count);
+    add(count, cons);
 
     // spread output
     ++cons.gridy; cons.gridx = 0;
-    add(new JLabel("Spread (σ)"));
+    add(new JLabel("Spread (SD)"), cons);
     ++cons.gridx;
-    add(standardDeviation);
+    add(standardDeviation, cons);
+    
+    pointCollection.addPropertyChangeListener(e -> update());
+  }
+  
+  public void update() {
+    count.setText("" + pointCollection.getPointCount());
+    double sdPixels = pointCollection.getSD();
+    double range = Double.parseDouble(rangeInput.getText()) 
+        * ((UnitItem)(rangeUnits.getSelectedItem())).multiplier;
+    System.out.println("range is " + range);
+    double sdMoa = ((60*360/2/Math.PI)*Math.atan((sdPixels / pixelScale)/range));
+    standardDeviation.setText(String.format("%7.2f", sdMoa));
   }
 }
