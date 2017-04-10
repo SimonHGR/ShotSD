@@ -56,11 +56,6 @@ public class PointCollection {
         sumSquaredDiffs += getHypSquared(p, mean);
       }
       sd = Math.sqrt(sumSquaredDiffs/pointCount);
-//      System.out.println("SD (pixels) is " + sd);
-//      System.out.println("SD is " + (sd / pixelScale) + " inches");
-//      System.out.println("for 25 yards " 
-//          + ((60*360/2/Math.PI)*Math.atan((sd / pixelScale)/900)) 
-//          + " Minutes of arc");
     }
     return sd;
   }

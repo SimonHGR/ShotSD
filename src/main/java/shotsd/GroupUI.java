@@ -13,7 +13,7 @@ public final class GroupUI extends JPanel {
   private final PointCollection pointCollection;
   private final double pixelScale;
   
-  private final JTextField rangeInput = new JTextField("                 25");
+  private final JTextField rangeInput = new JTextField("25");
   private final JComboBox<UnitItem> rangeUnits = new UnitsComboBox();
   private final JTextField count = new JTextField();
   private final JTextField standardDeviation = new JTextField();
@@ -36,15 +36,15 @@ public final class GroupUI extends JPanel {
     add(rangeUnits, cons);
     
     // count output
-    ++cons.gridy; cons.gridx = 0; cons.gridwidth = GridBagConstraints.REMAINDER;
+    ++cons.gridy; cons.gridx = 0; cons.gridwidth = 1;
     add(new JLabel("Count"), cons);
-    ++cons.gridx;
+    ++cons.gridx; cons.gridwidth = GridBagConstraints.REMAINDER;
     add(count, cons);
 
     // spread output
-    ++cons.gridy; cons.gridx = 0;
+    ++cons.gridy; cons.gridx = 0; cons.gridwidth = 1; cons.gridwidth = 1;
     add(new JLabel("Spread (SD)"), cons);
-    ++cons.gridx;
+    ++cons.gridx; cons.gridwidth = GridBagConstraints.REMAINDER;
     add(standardDeviation, cons);
     
     pointCollection.addPropertyChangeListener(e -> update());

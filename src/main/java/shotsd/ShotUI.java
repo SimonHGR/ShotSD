@@ -2,18 +2,19 @@ package shotsd;
 
 import java.awt.BorderLayout;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
-public class ShotUI extends JPanel {
+public class ShotUI extends JSplitPane {
 
   private JScrollPane scroller = new JScrollPane();
   private ControlPanel controlPanel;
 
   public ShotUI(JComponent imagePanel, ControlPanel controlPanel) {
-    this.setLayout(new BorderLayout());
+    super(JSplitPane.HORIZONTAL_SPLIT, true);
     scroller.setViewportView(imagePanel);
-    this.add(scroller, BorderLayout.CENTER);
-    this.add(controlPanel, BorderLayout.EAST);
+    this.add(scroller);
+    this.add(controlPanel);
+    this.setResizeWeight(0.7);
   }
 }

@@ -21,17 +21,17 @@ class UnitItem {
 
 public class UnitsComboBox extends JComboBox<UnitItem> {
 
-  private static final UnitItem[] items = {
+  private static final UnitItem[] ITEMS = {
     new UnitItem("Yards", 36),
     new UnitItem("Feet", 12),
     new UnitItem("Inches", 1),
     new UnitItem("Meters", 39.3701),};
 
   public UnitsComboBox() {
-    super(new DefaultComboBoxModel(items));
+    super(new DefaultComboBoxModel<UnitItem>(ITEMS));
   }
 
   public double getMultiplier() {
-    return items[this.getSelectedIndex()].multiplier;
+    return ITEMS[this.getSelectedIndex()].multiplier;
   }
 }
