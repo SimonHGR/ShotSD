@@ -32,6 +32,13 @@ public final class GroupUI extends JPanel {
     cons.gridx = 0; cons.gridy = 0; 
     cons.fill = GridBagConstraints.HORIZONTAL;
 
+    add(new JLabel("Group Name"), cons);
+    nameField.setText(pointCollection.getGroupName());
+    ++cons.gridx; cons.weightx = 1.0;
+    add(nameField, cons);
+    ++cons.gridx; cons.weightx = 0;
+    nameField.addActionListener(e->pointCollection.setGroupName(nameField.getText()));
+
     // range input
     add(new JLabel("Range"), cons);
     ++cons.gridx; cons.weightx = 1.0;

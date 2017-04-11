@@ -41,7 +41,7 @@ public class UIMediator {
       System.out.println("Creating group with pixel scale " + pixelScale);
       PointCollection pointCollection = new PointCollection(pixelScale);
       pointCollections.push(pointCollection);
-      GroupUI groupUI = new GroupUI(pointCollection, "Group " + (char) ('A' + groupNum));
+      GroupUI groupUI = new GroupUI(pointCollection, "" + (char) ('A' + groupNum));
       controlPanel.addNewGroup(groupUI);
     }
   };
@@ -51,7 +51,7 @@ public class UIMediator {
     public void mouseClicked(MouseEvent e) {
       Point p = e.getPoint();
       Point2D.Double p2d = toImageScaledPoint2D(p);
-      System.out.println("mouse clicked at " + p + " maps to " + p2d);
+//      System.out.println("mouse clicked at " + p + " maps to " + p2d);
       pointCollections.getFirst().addPoint(p2d);
       imagePanel.repaint();
     }

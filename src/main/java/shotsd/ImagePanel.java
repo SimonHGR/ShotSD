@@ -18,13 +18,14 @@ public class ImagePanel extends JPanel {
       = AffineTransform.getScaleInstance(scaleFactor, scaleFactor);
   private Deque<PointCollection> pointCollections;
 
-  private void fillDot(Graphics2D g, Point2D p) {
+  private void fillDot(Graphics2D g, Point2D p, String groupName) {
     int x = (int) (p.getX() - 10);
     int y = (int) (p.getY() - 10);
     int w = 20;
     int h = 20;
     g.setColor(Color.red);
-    g.fillOval(x, y, w, h);
+    g.drawOval(x, y, w, h);
+    g.drawString(groupName, x+2, y+18);
   }
 
   public ImagePanel(BufferedImage image,
@@ -49,7 +50,7 @@ public class ImagePanel extends JPanel {
     g2d.drawImage(image, 0, 0, null);
     for (PointCollection pointCollection : pointCollections) {
       for (int i = 0; i < pointCollection.getPointCount(); i++) {
-        fillDot(g2d, pointCollection.getPoint(i));
+        fillDot(g2d, pointCollection.getPoint(i), pointCollection.getGroupName());
       }
 
       // crosshairs for mean point
@@ -90,6 +91,6 @@ public class ImagePanel extends JPanel {
   @Override
   public void revalidate() {
     super.revalidate();
-    System.out.println("revalidating image panel");
+//    System.out.println("revalidating image panel");
   }
 }
