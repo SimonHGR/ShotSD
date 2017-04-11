@@ -167,9 +167,9 @@ public class UIMediator {
             message = "Range " + pc.getRangeText();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
-            message = "Standard Deviation (Pixels) " + pc.getSD();
-            g2D.drawString(message, 0, vOff);
-            vOff += FONT_SIZE + 2;
+//            message = "Standard Deviation (Pixels) " + pc.getSD();
+//            g2D.drawString(message, 0, vOff);
+//            vOff += FONT_SIZE + 2;
             message = "Standard Deviation (MOA) " + pc.getMoaSD();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
