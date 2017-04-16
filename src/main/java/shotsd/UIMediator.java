@@ -1,5 +1,6 @@
 package shotsd;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -17,12 +18,16 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Deque;
+import java.util.Iterator;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 
 public class UIMediator {
 
   private final int RULER_LENGTH = 12; // should be reading!
+  private static final Color [] groupColor = {
+    Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.YELLOW, Color.LIGHT_GRAY
+  };
 
   private Deque<PointCollection> pointCollections;
   private ShotUI ui;
@@ -39,9 +44,13 @@ public class UIMediator {
       // create group sub-UI in control panel
       controlPanel.setMessage("Enter range and click on shots");
       System.out.println("Creating group with pixel scale " + pixelScale);
-      PointCollection pointCollection = new PointCollection(pixelScale);
+      PointCollection pointCollection = 
+          new PointCollection(pixelScale, 
+              "" + (char) ('A' + groupNum),
+              groupColor[groupNum % groupColor.length]
+          );
       pointCollections.push(pointCollection);
-      GroupUI groupUI = new GroupUI(pointCollection, "" + (char) ('A' + groupNum));
+      GroupUI groupUI = new GroupUI(pointCollection);
       controlPanel.addNewGroup(groupUI);
     }
   };
@@ -159,12 +168,19 @@ public class UIMediator {
           // statistics
           int vOff = FONT_SIZE;
           Font f = new Font("Sans", Font.PLAIN, FONT_SIZE);
+
           int groupNumber = 0;
-          for (PointCollection pc : pointCollections) {
+          Iterator<PointCollection> iter = pointCollections.descendingIterator();
+          while (iter.hasNext()) {
+            PointCollection pc = iter.next();
+            g2D.setColor(pc.getGroupColor());
             String message = "Shot group " + pc.getGroupName();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
             message = "Range " + pc.getRangeText();
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+            message = "Shot count " + pc.getPointCount();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
 //            message = "Standard Deviation (Pixels) " + pc.getSD();

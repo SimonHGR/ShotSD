@@ -1,5 +1,6 @@
 package shotsd;
 
+import java.awt.Color;
 import java.util.List;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -10,21 +11,28 @@ public class PointCollection {
   private List<Point2D> data = new ArrayList<>();
   private double pixelScale;
   private String groupName;
+  private Color groupColor;
   private double range = 25;
   private String rangeUnitName = "Yards";
   private double rangeMultiplier = 12;
   private List<PropertyChangeListener> listeners = new ArrayList<>();
 
-  public PointCollection(double pixelScale) {
+  public PointCollection(double pixelScale, String groupName, Color color) {
     this.pixelScale = pixelScale;
+    this.groupName = groupName;
+    this.groupColor = color;
   }
 
+  public double getPixelScale() {
+    return this.pixelScale;
+  }
+  
+  public Color getGroupColor() {
+    return this.groupColor;
+  }
+  
   public String getGroupName() {
     return groupName;
-  }
-
-  public void setGroupName(String groupName) {
-    this.groupName = groupName;
   }
 
   public double getRangeInInches() {

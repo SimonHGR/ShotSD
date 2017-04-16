@@ -1,5 +1,6 @@
 package shotsd;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -19,13 +20,15 @@ public class ImagePanel extends JPanel {
   private Deque<PointCollection> pointCollections;
 
   private void fillDot(Graphics2D g, Point2D p, String groupName) {
+    Color color = g.getColor();
     int x = (int) (p.getX() - 10);
     int y = (int) (p.getY() - 10);
     int w = 20;
     int h = 20;
-    g.setColor(Color.red);
     g.drawOval(x, y, w, h);
-    g.drawString(groupName, x+2, y+18);
+    g.setColor(Color.BLACK);
+    g.drawString(groupName, x+4, y+16);
+    g.setColor(color);
   }
 
   public ImagePanel(BufferedImage image,
@@ -48,22 +51,23 @@ public class ImagePanel extends JPanel {
       g2d.transform(transform);
     }
     g2d.drawImage(image, 0, 0, null);
+    g2d.setStroke(new BasicStroke(3));
     for (PointCollection pointCollection : pointCollections) {
+      g2d.setColor(pointCollection.getGroupColor());
+
       for (int i = 0; i < pointCollection.getPointCount(); i++) {
         fillDot(g2d, pointCollection.getPoint(i), pointCollection.getGroupName());
       }
 
-      // crosshairs for mean point
-      g2d.setColor(Color.BLUE);
       Point2D meanPoint = pointCollection.getMean();
+      int sd = (int) pointCollection.getSD();
+      // crosshairs for mean point
       int mX = (int) meanPoint.getX();
       int mY = (int) meanPoint.getY();
-      g2d.drawLine(mX, 0, mX, 3000);
-      g2d.drawLine(0, mY, 3000, mY);
+      g2d.drawLine(mX, mY - 4*sd, mX, mY + 4*sd);
+      g2d.drawLine(mX - 4*sd, mY, mX + 4*sd, mY);
 
       // circles for standard deviation
-      g2d.setColor(Color.ORANGE);
-      int sd = (int) pointCollection.getSD();
       g2d.drawOval(mX - sd, mY - sd, 2*sd, 2*sd);
       g2d.drawOval(mX - 2*sd, mY - 2*sd, 4*sd, 4*sd);
       g2d.drawOval(mX - 3*sd, mY - 3*sd, 6*sd, 6*sd);

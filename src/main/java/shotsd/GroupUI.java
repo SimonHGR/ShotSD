@@ -19,12 +19,11 @@ public final class GroupUI extends JPanel {
 //  private final JTextField standardDeviationPix = new JTextField();
   private final JTextField standardDeviation = new JTextField();
 
-  public GroupUI(PointCollection pointCollection, String name) {
+  public GroupUI(PointCollection pointCollection) {
     this.pointCollection = pointCollection;
-    pointCollection.setGroupName(name);
     updateRangeInfo();
-    nameField.setText(name);
-    nameField.addActionListener(e->pointCollection.setGroupName(nameField.getText()));
+    nameField.setText(pointCollection.getGroupName());
+    nameField.setEditable(false);
     
     setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
     setLayout(new GridBagLayout());
@@ -37,7 +36,6 @@ public final class GroupUI extends JPanel {
     ++cons.gridx; cons.weightx = 1.0;
     add(nameField, cons);
     ++cons.gridx; cons.weightx = 0;
-    nameField.addActionListener(e->pointCollection.setGroupName(nameField.getText()));
 
     // range input
     add(new JLabel("Range"), cons);
