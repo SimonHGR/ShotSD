@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class PointCollection {
 
@@ -65,6 +66,8 @@ public class PointCollection {
 
   public void addPoint(Point2D p) {
     data.add(p);
+    // debugging
+    dumpDataSet();
     computeMinCircle();
     notifyListeners();
   }
@@ -96,27 +99,42 @@ public class PointCollection {
     return this.minCircle;
   }
   
-  private void computeMinCircle() {
-//    Optional<Point2D> leftPoint = data.stream().min(Point2D::getX);
-//    Optional<Point2D> rightPoint = data.stream().max(Point2D::getX);
-//    Optional<Point2D> bottomPoint = data.stream().min(Point2D::getY);
-//    Optional<Point2D> topPoint = data.stream().max(Point2D::getY);
-    if (data.size() < 2) {
-      minCircle = Optional.empty();
-    } else if (data.size() == 2) {
-      minCircle = Optional.of(
-          Circle.ofDiameterPoints(data.get(0), data.get(1)));
-    } else {
-      System.out.println("Streaming brute force...");
-      minCircle = Combinations.kFrom(3, data)
-//          .map(Triangle::of)
-//          .filter(Triangle::isAcute)
+  public Stream<Circle> getCircles() {
+    Stream<Circle> triples = Combinations.kFrom(3, data)
           .map(Circle::of)
-          .filter(c -> c.containsAll(data))
-          .min(Comparator.comparing(Circle::getRadius));
-      System.out.println("Streaming brute force completed, circle is " + minCircle.get());
-    }
+        ;
+      Stream<Circle> diameters = Combinations.kFrom(2, data)
+          .map(Circle::ofDiameterPoints)
+          ;
+      return Stream.concat(triples, diameters);
   }
+  
+  private void computeMinCircle() {}
+//  private void computeMinCircle() {
+////    Optional<Point2D> leftPoint = data.stream().min(Point2D::getX);
+////    Optional<Point2D> rightPoint = data.stream().max(Point2D::getX);
+////    Optional<Point2D> bottomPoint = data.stream().min(Point2D::getY);
+////    Optional<Point2D> topPoint = data.stream().max(Point2D::getY);
+//    if (data.size() < 2) {
+//      minCircle = Optional.empty();
+//    } else if (data.size() == 2) {
+//      minCircle = Optional.of(
+//          Circle.ofDiameterPoints(data.get(0), data.get(1)));
+//    } else {
+//      System.out.println("Streaming brute force...");
+//      Stream<Circle> triples = Combinations.kFrom(3, data)
+////          .map(Triangle::of)
+////          .filter(Triangle::isAcute)
+//          .map(Circle::of)
+//          .filter(c -> c.containsAll(data));
+//      Stream<Circle> diameters = Combinations.kFrom(2, data)
+//          .map(Circle::ofDiameterPoints)
+//          .filter(c -> c.containsAll(data));
+//      minCircle = Stream.concat(triples, diameters)
+//          .min(Comparator.comparing(Circle::getRadius));
+//      System.out.println("Streaming brute force completed, circle is " + minCircle);
+//    }
+//  }
 
   private double getHypSquared(Point2D a, Point2D b) {
     double deltaX = a.getX() - b.getX();
@@ -157,6 +175,12 @@ public class PointCollection {
   public void notifyListeners() {
     for (PropertyChangeListener l : listeners) {
       l.propertyChange(new PropertyChangeEvent(this, "data", null, null));
+    }
+  }
+  
+  private void dumpDataSet() {
+    for (Point2D p : data) {
+      System.out.printf("new Point2D.Double(%12.9f, %12.9f),\n", p.getX(), p.getY());
     }
   }
 }

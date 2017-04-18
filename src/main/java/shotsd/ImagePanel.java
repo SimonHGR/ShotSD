@@ -75,13 +75,23 @@ public class ImagePanel extends JPanel {
       // Group circle
       g2d.setColor(Color.BLACK);
       pointCollection
-          .getMinCircle()
-          .ifPresent(c->g2d.drawOval(
+          .getCircles()
+          .forEach(c->g2d.drawOval(
               (int)(c.getCenter().getX()-c.getRadius()), 
               (int)(c.getCenter().getY()-c.getRadius()), 
               (int)(2*c.getRadius()), 
               (int)(2*c.getRadius())
               ));
+//      // Group circle
+//      g2d.setColor(Color.BLACK);
+//      pointCollection
+//          .getMinCircle()
+//          .ifPresent(c->g2d.drawOval(
+//              (int)(c.getCenter().getX()-c.getRadius()), 
+//              (int)(c.getCenter().getY()-c.getRadius()), 
+//              (int)(2*c.getRadius()), 
+//              (int)(2*c.getRadius())
+//              ));
     }
   }
 

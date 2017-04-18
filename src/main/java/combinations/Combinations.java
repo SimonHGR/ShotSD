@@ -14,17 +14,17 @@ import java.util.stream.StreamSupport;
 public class Combinations<E> implements Spliterator<Set<E>> {
 
   public static <E> Stream<Set<E>> kFrom(int k, Collection<E> in) {
-    return StreamSupport.stream(new Combinations(k, in), false);
+    return StreamSupport.stream(new Combinations<>(k, in), false);
   }
 
-  private int[] positions;
-  private List<E> items;
-  private int limit;
+  private final int[] positions;
+  private final List<E> items;
+  private final int limit;
   private boolean hasMore;
 
   private Combinations(int k, Collection<E> in) {
     this.positions = new int[k];
-    this.items = new ArrayList(in);
+    this.items = new ArrayList<>(in);
     this.limit = this.items.size();
     for (int x = 0; x < k; x++) {
       positions[x] = limit - k + x;
@@ -46,10 +46,9 @@ public class Combinations<E> implements Spliterator<Set<E>> {
     boolean success = this.hasMore;
     if (hasMore) {
       Set<E> rv = new HashSet<>();
-      rv.add(this.items.get(positions[0]));
-      rv.add(this.items.get(positions[1]));
-      rv.add(this.items.get(positions[2]));
-
+      for (int i = 0; i < this.positions.length; i++) {
+        rv.add(this.items.get(positions[i]));
+      }
       this.hasMore = reducePosition(0) >= 0;
       action.accept(rv);
     }
@@ -63,7 +62,7 @@ public class Combinations<E> implements Spliterator<Set<E>> {
 
   @Override
   public long estimateSize() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    return 0;
   }
 
   @Override
@@ -79,23 +78,5 @@ public class Combinations<E> implements Spliterator<Set<E>> {
     sb.setLength(sb.length() - 2);
     sb.append(" ]");
     System.out.println(sb);
-  }
-
-  public static void main(String[] args) {
-    Set<Integer> in = new HashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7));
-//    Combinations<Integer> comb = new Combinations<>(4, in);
-//    int x = -1;
-//    do {
-//      comb.showArray();
-//      x = comb.reducePosition(0);
-//    } while (x >= 0);
-//    System.out.println("Done");
-
-    Combinations.kFrom(3, in)
-        .forEach(System.out::println);
-
-    System.out.println("Count is " 
-        + Combinations.kFrom(3, in)
-        .count());
   }
 }
