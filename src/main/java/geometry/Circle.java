@@ -1,6 +1,8 @@
 package geometry;
 
 import java.awt.geom.Point2D;
+import java.util.Collection;
+import java.util.Set;
 
 public class Circle {
   private double centerX, centerY;
@@ -27,6 +29,15 @@ public class Circle {
     double deltaY = (bY - self.centerY);
     self.radius = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
     return self;
+  }
+  
+  public static Circle of(Set<Point2D> points) {
+    Point2D[] pArray = points.toArray(new Point2D.Double[0]);
+    return Circle.of(pArray[0],pArray[1],pArray[2]);
+  }
+  
+  public static Circle of(Triangle t) {
+    return Circle.of(t.allPoints());
   }
   
   public static Circle of(Point2D a, Point2D b, Point2D c) {
@@ -58,5 +69,16 @@ public class Circle {
     double deltaY = pY - centerY;
     double delta = Math.sqrt(deltaX*deltaX + deltaY+deltaY);
     return delta < radius;
+  }
+  
+  public boolean containsAll(Collection<Point2D> points) {
+    return points
+        .stream()
+        .allMatch(this::contains);
+  }
+  
+  @Override
+  public String toString() {
+    return String.format("Circle: (%6.2f, %6.2f) %6.2f", centerX, centerY, radius);
   }
 }
