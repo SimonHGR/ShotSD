@@ -1,8 +1,6 @@
 package geometry;
 
 import java.awt.geom.Point2D;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -63,14 +61,51 @@ public class TestCircle {
         c.contains(new Point2D.Double(1.05, 1.05)));
   }
 
-//  @Test
-//  public void contains() {
-//    Point2D p =
-////        new Point2D.Double(852.173913043, 326.086956522);
-////        new Point2D.Double(1604.347826087, 1043.478260870);
-////        new Point2D.Double(1497.826086957, 543.478260870);
-//        new Point2D.Double(1158.695652174, 447.826086957);
-//    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(1228.26, 684.78), 519.72);
-//    Assert.assertFalse("Doesn't contain the point", c.contains(p));
-//  }
+  @Test
+  public void containsNorthEast() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertTrue(c.contains(new Point2D.Double(4, 4)));
+  }
+
+  @Test
+  public void containsNorthWest() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertTrue(c.contains(new Point2D.Double(2, 4)));
+  }
+
+  @Test
+  public void containsSouthWest() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertTrue(c.contains(new Point2D.Double(2, 2)));
+  }
+
+  @Test
+  public void containsSouthEast() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertTrue(c.contains(new Point2D.Double(4, 2)));
+  }
+
+  @Test
+  public void excludesNorthEast() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertFalse(c.contains(new Point2D.Double(5, 5)));
+  }
+
+  @Test
+  public void excludesNorthWest() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertFalse(c.contains(new Point2D.Double(1, 5)));
+  }
+
+  @Test
+  public void excludesSouthWest() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertFalse(c.contains(new Point2D.Double(1, 1)));
+  }
+
+  @Test
+  public void excludesSouthEast() {
+    Circle c = Circle.ofCenterAndRadius(new Point2D.Double(3,3), 2);
+    Assert.assertFalse(c.contains(new Point2D.Double(5, 1)));
+  }
 }
