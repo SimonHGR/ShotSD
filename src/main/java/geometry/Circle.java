@@ -75,7 +75,7 @@ public class Circle {
     double deltaX = pX - centerX;
     double deltaY = pY - centerY;
     double delta = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    return delta < radius;
+    return delta < radius + 0.01;
   }
 
   public boolean containsAll(Collection<Point2D> points) {

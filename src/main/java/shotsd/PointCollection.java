@@ -69,6 +69,7 @@ public class PointCollection {
     // debugging
     dumpDataSet();
     computeMinCircle();
+    
     notifyListeners();
   }
 
@@ -109,32 +110,22 @@ public class PointCollection {
       return Stream.concat(triples, diameters);
   }
   
-  private void computeMinCircle() {}
-//  private void computeMinCircle() {
-////    Optional<Point2D> leftPoint = data.stream().min(Point2D::getX);
-////    Optional<Point2D> rightPoint = data.stream().max(Point2D::getX);
-////    Optional<Point2D> bottomPoint = data.stream().min(Point2D::getY);
-////    Optional<Point2D> topPoint = data.stream().max(Point2D::getY);
-//    if (data.size() < 2) {
-//      minCircle = Optional.empty();
-//    } else if (data.size() == 2) {
-//      minCircle = Optional.of(
-//          Circle.ofDiameterPoints(data.get(0), data.get(1)));
-//    } else {
-//      System.out.println("Streaming brute force...");
-//      Stream<Circle> triples = Combinations.kFrom(3, data)
-////          .map(Triangle::of)
-////          .filter(Triangle::isAcute)
-//          .map(Circle::of)
-//          .filter(c -> c.containsAll(data));
-//      Stream<Circle> diameters = Combinations.kFrom(2, data)
-//          .map(Circle::ofDiameterPoints)
-//          .filter(c -> c.containsAll(data));
-//      minCircle = Stream.concat(triples, diameters)
-//          .min(Comparator.comparing(Circle::getRadius));
-//      System.out.println("Streaming brute force completed, circle is " + minCircle);
-//    }
-//  }
+//  private void computeMinCircle() {}
+  private void computeMinCircle() {
+    if (data.size() < 2) {
+      minCircle = Optional.empty();
+    } else if (data.size() == 2) {
+      minCircle = Optional.of(
+          Circle.ofDiameterPoints(data.get(0), data.get(1)));
+    } else {
+      System.out.println("Streaming brute force...");
+      minCircle = 
+          getCircles()
+              .filter(c->c.containsAll(data))
+              .min(Comparator.comparing(Circle::getRadius));
+      System.out.println("Streaming brute force completed, circle is " + minCircle);
+    }
+  }
 
   private double getHypSquared(Point2D a, Point2D b) {
     double deltaX = a.getX() - b.getX();
