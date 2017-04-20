@@ -2,7 +2,6 @@ package shotsd;
 
 import combinations.Combinations;
 import geometry.Circle;
-import geometry.Triangle;
 import java.awt.Color;
 import java.util.List;
 import java.awt.geom.Point2D;
@@ -66,10 +65,10 @@ public class PointCollection {
 
   public void addPoint(Point2D p) {
     data.add(p);
-    // debugging
-    dumpDataSet();
-    computeMinCircle();
-    
+    if (!this.minCircle.isPresent()
+        || !minCircle.get().contains(p)) {
+      this.minCircle = computeMinCircle();
+    }
     notifyListeners();
   }
 
@@ -99,31 +98,26 @@ public class PointCollection {
   public Optional<Circle> getMinCircle() {
     return this.minCircle;
   }
-  
+
   public Stream<Circle> getCircles() {
     Stream<Circle> triples = Combinations.kFrom(3, data)
-          .map(Circle::of)
-        ;
-      Stream<Circle> diameters = Combinations.kFrom(2, data)
-          .map(Circle::ofDiameterPoints)
-          ;
-      return Stream.concat(triples, diameters);
+        .map(Circle::of);
+    Stream<Circle> diameters = Combinations.kFrom(2, data)
+        .map(Circle::ofDiameterPoints);
+    return Stream.concat(triples, diameters);
   }
-  
-//  private void computeMinCircle() {}
-  private void computeMinCircle() {
+
+  private Optional<Circle> computeMinCircle() {
+    System.out.println("Computing minCircle");
     if (data.size() < 2) {
-      minCircle = Optional.empty();
+      return Optional.empty();
     } else if (data.size() == 2) {
-      minCircle = Optional.of(
+      return Optional.of(
           Circle.ofDiameterPoints(data.get(0), data.get(1)));
     } else {
-      System.out.println("Streaming brute force...");
-      minCircle = 
-          getCircles()
-              .filter(c->c.containsAll(data))
-              .min(Comparator.comparing(Circle::getRadius));
-      System.out.println("Streaming brute force completed, circle is " + minCircle);
+      return getCircles()
+          .filter(c -> c.containsAll(data))
+          .min(Comparator.comparing(Circle::getRadius));
     }
   }
 
@@ -159,6 +153,13 @@ public class PointCollection {
     return angleMinutes;
   }
 
+  public double getGroupSizeInches() {
+    return minCircle
+        .map(Circle::getRadius)
+        .map(r->r/pixelScale)
+        .orElse(0.0);
+  }
+  
   public void addPropertyChangeListener(PropertyChangeListener listener) {
     listeners.add(listener);
   }
@@ -168,7 +169,7 @@ public class PointCollection {
       l.propertyChange(new PropertyChangeEvent(this, "data", null, null));
     }
   }
-  
+
   private void dumpDataSet() {
     for (Point2D p : data) {
       System.out.printf("new Point2D.Double(%12.9f, %12.9f),\n", p.getX(), p.getY());

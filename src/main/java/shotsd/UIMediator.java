@@ -183,9 +183,9 @@ public class UIMediator {
             message = "Shot count " + pc.getPointCount();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
-//            message = "Standard Deviation (Pixels) " + pc.getSD();
-//            g2D.drawString(message, 0, vOff);
-//            vOff += FONT_SIZE + 2;
+            message = "Group radius (inches) " + pc.getGroupSizeInches();
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
             message = "Standard Deviation (MOA) " + pc.getMoaSD();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;

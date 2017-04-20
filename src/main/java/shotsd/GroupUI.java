@@ -16,8 +16,8 @@ public final class GroupUI extends JPanel {
   private final JTextField rangeInput = new JTextField("25");
   private final JComboBox<UnitItem> rangeUnits = new UnitsComboBox();
   private final JTextField count = new JTextField();
-//  private final JTextField standardDeviationPix = new JTextField();
   private final JTextField standardDeviation = new JTextField();
+  private final JTextField groupSizeInches = new JTextField();
 
   public GroupUI(PointCollection pointCollection) {
     this.pointCollection = pointCollection;
@@ -56,11 +56,11 @@ public final class GroupUI extends JPanel {
     add(new JLabel("Spread (SD MOA)"), cons);
     ++cons.gridx; cons.gridwidth = GridBagConstraints.REMAINDER;
     add(standardDeviation, cons);
-//
-//    ++cons.gridy; cons.gridx = 0; cons.gridwidth = 1;
-//    add(new JLabel("Spread (SD Pix)"), cons);
-//    ++cons.gridx; cons.gridwidth = GridBagConstraints.REMAINDER;
-//    add(standardDeviationPix, cons);
+
+    ++cons.gridy; cons.gridx = 0; cons.gridwidth = 1;
+    add(new JLabel("Group radius (inch)"), cons);
+    ++cons.gridx; cons.gridwidth = GridBagConstraints.REMAINDER;
+    add(groupSizeInches, cons);
     
     pointCollection.addPropertyChangeListener(e -> update());
   }
@@ -77,6 +77,6 @@ public final class GroupUI extends JPanel {
     count.setText("" + pointCollection.getPointCount());
     double sdPixels = pointCollection.getSD();
     standardDeviation.setText(String.format("%7.2f", pointCollection.getMoaSD()));
-//    standardDeviationPix.setText(String.format("%5d", (int)pointCollection.getSD()));
+    groupSizeInches.setText(String.format("%7.2f", pointCollection.getGroupSizeInches()));
   }
 }
