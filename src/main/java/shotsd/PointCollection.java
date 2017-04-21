@@ -23,6 +23,7 @@ public class PointCollection {
   private double rangeMultiplier = 12;
   private Optional<Circle> minCircle;
   private List<PropertyChangeListener> listeners = new ArrayList<>();
+  private String description;
 
   public PointCollection(double pixelScale, String groupName, Color color) {
     this.pixelScale = pixelScale;
@@ -142,15 +143,19 @@ public class PointCollection {
     return sd;
   }
 
-  public double getMoaSD() {
-    double sd = getSD();
-    double sdInches = sd / pixelScale;
-    double inches = getRangeInInches();
-    double tanTheta = sdInches / inches;
+  public double inchesToMoa(double inch) {
+    double inchesRange = getRangeInInches();
+    double tanTheta = inch / inchesRange;
     double angleRads = Math.atan(tanTheta);
     double angleDegrees = 180 * angleRads / Math.PI;
     double angleMinutes = 60 * angleDegrees;
     return angleMinutes;
+  }
+  
+  public double getMoaSD() {
+    double sd = getSD();
+    double sdInches = sd / pixelScale;
+    return inchesToMoa(sdInches);
   }
 
   public double getGroupSizeInches() {
@@ -174,5 +179,13 @@ public class PointCollection {
     for (Point2D p : data) {
       System.out.printf("new Point2D.Double(%12.9f, %12.9f),\n", p.getX(), p.getY());
     }
+  }
+
+  public void setDescription(String text) {
+    this.description = text;
+  }
+  
+  public String getDescription() {
+    return this.description;
   }
 }

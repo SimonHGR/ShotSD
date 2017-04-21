@@ -19,13 +19,16 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 
 public class UIMediator {
 
+  private static final Pattern LINE_END = Pattern.compile("$", Pattern.MULTILINE);
+  
   private final int RULER_LENGTH = 12; // should be reading!
-  private static final Color [] groupColor = {
+  private static final Color[] groupColor = {
     Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.YELLOW, Color.LIGHT_GRAY
   };
 
@@ -44,8 +47,8 @@ public class UIMediator {
       // create group sub-UI in control panel
       controlPanel.setMessage("Enter range and click on shots");
       System.out.println("Creating group with pixel scale " + pixelScale);
-      PointCollection pointCollection = 
-          new PointCollection(pixelScale, 
+      PointCollection pointCollection
+          = new PointCollection(pixelScale,
               "" + (char) ('A' + groupNum),
               groupColor[groupNum % groupColor.length]
           );
@@ -134,13 +137,13 @@ public class UIMediator {
         double offsetX = pageFormat.getImageableX();
         double offsetY = pageFormat.getImageableY();
         transform.translate(offsetX, offsetY);
-        if (pageIndex == 0) {
-          double usefulWidth = pageFormat.getImageableWidth();
-          double usefulHeight = pageFormat.getImageableHeight();
+        double usefulWidth = pageFormat.getImageableWidth();
+        double usefulHeight = pageFormat.getImageableHeight();
 
-          double pageRatio = usefulWidth / usefulHeight;
-          System.out.printf("page tl: %6.2f , %6.2f print area: %6.2f , %6.2f\n",
-              offsetX, offsetY, usefulWidth, usefulHeight);
+        double pageRatio = usefulWidth / usefulHeight;
+        System.out.printf("page tl: %6.2f , %6.2f print area: %6.2f , %6.2f\n",
+            offsetX, offsetY, usefulWidth, usefulHeight);
+        if (pageIndex == 0) {
           double imageRatio = iRatio;
           double imageW = imageBounds.width;
           double imageH = imageBounds.height;
@@ -174,16 +177,27 @@ public class UIMediator {
           while (iter.hasNext()) {
             PointCollection pc = iter.next();
             g2D.setColor(pc.getGroupColor());
-            String message = "Shot group " + pc.getGroupName();
+            g2D.fillRect(0, vOff, (int)usefulWidth, 6);
+            vOff += FONT_SIZE + 8;
+            g2D.setColor(Color.BLACK);
+            String message = "Shot group " + pc.getGroupName()
+                + " Range " + pc.getRangeText();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
-            message = "Range " + pc.getRangeText();
-            g2D.drawString(message, 0, vOff);
-            vOff += FONT_SIZE + 2;
+            String[] descLines = LINE_END.split(pc.getDescription());
+            for (int l = 0; l < descLines.length; l++) {
+              System.out.println("printing-- " + descLines[l]);
+              g2D.drawString(descLines[l], 0, vOff);
+              vOff += FONT_SIZE + 2;
+            }
+
             message = "Shot count " + pc.getPointCount();
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
             message = "Group radius (inches) " + pc.getGroupSizeInches();
+            g2D.drawString(message, 0, vOff);
+            vOff += FONT_SIZE + 2;
+            message = "Group radius (MOA) " + pc.inchesToMoa(pc.getGroupSizeInches());
             g2D.drawString(message, 0, vOff);
             vOff += FONT_SIZE + 2;
             message = "Standard Deviation (MOA) " + pc.getMoaSD();
